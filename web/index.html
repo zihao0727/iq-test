@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#202124">
+  <title>SEVNX · 模型质量实验室</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-rail" aria-label="SEVNX"><a class="rail-brand" href="/" title="SEVNX 首页">S</a><span class="rail-line"></span><svg class="rail-active"><use href="/icons.svg#activity"/></svg><svg><use href="/icons.svg#bike"/></svg><span class="rail-bottom">S / 01</span></div>
+  <header><div class="header-inner">
+    <a class="brand" href="/">SEVNX <span class="brand-slash">/</span><small>模型观测台</small></a>
+    <nav aria-label="主导航">
+      <button data-view="overview" aria-current="page">监测总览</button>
+      <button data-view="gallery">动画作品</button>
+      <button data-view="history">检测记录</button>
+    </nav>
+    <span class="connection"><span class="dot" id="connection-dot"></span><span id="connection">正在连接</span></span>
+  </div></header>
+  <main>
+    <section class="heading">
+      <div><p class="eyebrow">MODEL INTELLIGENCE / 01</p><h1 id="page-title">模型观测台<span class="title-period">.</span></h1><p class="subtitle">推理的准确性，创作的可能性。</p></div>
+      <div class="heading-actions"><span class="chip">LIVE BENCHMARK <span class="dot"></span></span><button class="icon-button" id="refresh" title="刷新结果" aria-label="刷新结果"><svg><use href="/icons.svg#refresh-cw"/></svg></button></div>
+    </section>
+    <div id="notice" role="status" hidden></div>
+    <section class="backend-strip" aria-label="后台默认巡检"><div><span class="dot off" id="config-dot"></span><span>默认巡检</span><strong id="api-site">www.sevnx.lol</strong><span id="config-status">读取中</span></div><div><code>gpt-6-astra</code><span class="tag">low</span><span>10 min / cycle</span><button id="run-button" class="icon-button" title="管理员触发默认巡检" aria-label="管理员触发默认巡检" disabled><svg><use href="/icons.svg#play"/></svg></button></div></section>
+    <div class="layout">
+      <div class="main-column">
+        <section id="overview-view">
+          <div class="metrics">
+            <div class="metric"><span class="metric-label">糖果题通过率 <small>24H</small></span><strong id="accuracy">—</strong><progress id="progress" max="100" value="0" aria-label="糖果题通过率"></progress><span class="metric-note" id="accuracy-note">等待有效样本</span></div>
+            <div class="metric"><span class="metric-label">检测轮次 <svg><use href="/icons.svg#activity"/></svg></span><strong id="total">0<small>轮</small></strong><span class="metric-note">最近 24 小时 · 双项检测</span></div>
+            <div class="metric"><span class="metric-label">异常记录 <svg><use href="/icons.svg#triangle-alert"/></svg></span><strong id="abnormal">0<small>项</small></strong><span class="metric-note" id="error-note">未通过 0 · 请求失败 0</span></div>
+            <div class="metric"><span class="metric-label"><span class="dot"></span> 下次检测</span><strong class="countdown" id="countdown">--:--</strong><span class="metric-note" id="schedule-note">每 10 分钟自动运行</span></div>
+          </div>
+          <section class="monitor">
+            <div class="section-heading"><div class="section-name"><span class="section-number">01</span><div><p class="eyebrow">REASONING / 糖果题</p><h2>推理稳定性</h2></div></div><span class="badge" id="latest-status">等待配置</span></div>
+            <div class="timeline-heading"><h3>24 小时检测时间线</h3><span>144 个时段</span></div>
+            <div id="timeline" class="timeline" aria-label="最近24小时检测结果"></div>
+            <div class="timeline-scale"><span>24 小时前</span><span>现在</span></div>
+            <div class="legend"><span><i class="pass"></i>通过</span><span><i class="fail"></i>未通过</span><span><i class="error"></i>请求失败</span><span><i class="running"></i>检测中</span><span><i></i>无数据</span></div>
+            <div class="latest-line"><span>最近一轮</span><strong id="latest-text">尚无检测记录</strong><button id="latest-button" class="icon-button" title="查看最近结果" aria-label="查看最近结果" disabled><svg><use href="/icons.svg#arrow-up-right"/></svg></button></div>
+          </section>
+          <section class="schedule"><div><span>检测频率</span><strong>10 分钟 / 轮</strong></div><div><span>最近检测</span><strong id="last-time">尚无记录</strong></div><div><span>下次检测</span><strong id="next-time">等待配置</strong></div></section>
+        </section>
+        <section id="gallery-view" class="gallery-section">
+          <div class="section-heading"><div class="section-name"><span class="section-number">02</span><div><p class="eyebrow">CREATIVE / 鹈鹕动画</p><h2>骑行作品集</h2></div></div><span class="badge" id="art-count">0 幅作品</span></div>
+          <div id="gallery" class="gallery"></div>
+          <div id="art-empty" class="art-empty">
+            <div class="sample-art"><img src="/pelican.svg" alt="鹈鹕骑自行车的示意插画" width="330" height="220"><span>示意图 · 非模型生成结果</span></div>
+            <div><span class="empty-kicker">NO OUTPUT YET</span><h3>下一程，等待出发。</h3><p>暂无自动巡检作品</p><span class="subtle-label">HTML / SVG <b>·</b> 2D ANIMATION</span></div>
+          </div>
+          <div class="section-footer"><span>生成成功不代表动画质量通过评估</span><button id="more-art" class="text-button" hidden>显示更多作品 <svg><use href="/icons.svg#arrow-up-right"/></svg></button></div>
+        </section>
+        <section id="history-view" hidden>
+          <div class="section-heading"><div><p class="eyebrow">RUN HISTORY</p><h2>检测记录</h2></div><span class="badge" id="history-count">0 条记录</span></div>
+          <div class="filters"><div role="group" aria-label="记录类型"><button data-kind="all" aria-pressed="true">全部</button><button data-kind="candy" aria-pressed="false">糖果题</button><button data-kind="pelican" aria-pressed="false">鹈鹕动画</button></div><select id="status-filter" aria-label="筛选状态"><option value="all">全部状态</option><option value="pass">通过</option><option value="generated">已生成</option><option value="fail">未通过</option><option value="error">请求失败</option><option value="running">检测中</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th>检测时间 · 北京</th><th>类型</th><th>结果</th><th>耗时</th><th>输出 Token</th><th></th></tr></thead><tbody id="history-rows"></tbody></table></div>
+          <p id="history-empty" class="empty-note">暂无检测记录</p><button id="more-history" class="text-button" hidden>加载更多</button>
+        </section>
+      </div>
+      <aside aria-label="访客自定义检测">
+        <div class="aside-heading"><div><p class="eyebrow">YOUR API. YOUR BENCHMARK.</p><h2>自定义检测</h2></div><svg><use href="/icons.svg#sliders-horizontal"/></svg></div>
+        <form id="visitor-form" autocomplete="off">
+          <div class="visitor-tabs" role="group" aria-label="选择自测项目"><button type="button" data-test="both" aria-pressed="true">双项检测</button><button type="button" data-test="candy" aria-pressed="false"><svg><use href="/icons.svg#candy"/></svg>糖果题</button><button type="button" data-test="pelican" aria-pressed="false"><svg><use href="/icons.svg#bike"/></svg>鹈鹕动画</button></div>
+          <label for="visitor-url">API URL <span>HTTPS</span></label>
+          <input id="visitor-url" name="endpoint" type="url" required maxlength="2048" placeholder="https://your-api.com/v1" spellcheck="false">
+          <label for="visitor-key">API Key <span>仅用于本次检测</span></label>
+          <div class="key-input"><input id="visitor-key" name="key" type="password" required minlength="8" maxlength="4096" placeholder="sk-..." autocomplete="new-password" spellcheck="false"><button id="toggle-key" type="button" class="icon-button" title="显示密钥" aria-label="显示密钥"><svg><use href="/icons.svg#eye"/></svg></button></div>
+          <div class="request-spec"><div><span>请求模型</span><strong>gpt-6-astra</strong></div><div><span>协议 / 强度</span><strong>Responses <b>·</b> low</strong></div></div>
+          <label class="consent"><input id="visitor-consent" type="checkbox" required><span>使用我的密钥调用，并承担上游 API 费用。</span></label>
+          <button id="visitor-submit" class="primary" type="submit"><span>运行两项检测</span><svg><use href="/icons.svg#arrow-right"/></svg></button>
+          <p id="visitor-error" role="alert" hidden></p>
+        </form>
+        <div class="visitor-results-heading"><h3>本次会话</h3><span id="visitor-count">0 次检测</span></div>
+        <div id="visitor-results"><div class="visitor-empty"><svg><use href="/icons.svg#terminal"/></svg><p>尚未发起检测</p><span>PRIVATE SESSION</span></div></div>
+        <button id="method-button" class="method-button">检测题目与判定规则 <svg><use href="/icons.svg#arrow-up-right"/></svg></button>
+        <div class="security"><svg><use href="/icons.svg#shield-check"/></svg><span>Key 不落盘 · 自测结果仅当前访客可见</span></div>
+      </aside>
+    </div>
+    <footer><span><span class="dot"></span> 每 15 秒同步记录</span><span>北京时间 UTC+8</span><span>SEVNX <b>MODEL LAB</b></span></footer>
+  </main>
+  <dialog id="detail-dialog"><div class="dialog-heading"><h2 id="detail-title">检测详情</h2><button class="icon-button close-dialog" aria-label="关闭" title="关闭"><svg><use href="/icons.svg#x"/></svg></button></div><div id="detail-body"></div></dialog>
+  <dialog id="run-dialog"><div class="dialog-heading"><h2>立即运行一轮检测</h2><button class="icon-button close-dialog" aria-label="关闭" title="关闭"><svg><use href="/icons.svg#x"/></svg></button></div><p>将使用服务端 API Key 发起两次请求，产生上游调用费用，并重新开始十分钟倒计时。</p><form id="run-form"><label for="admin-token">管理员令牌</label><input id="admin-token" type="password" autocomplete="off" required placeholder="ADMIN_TOKEN"><p id="run-error" role="alert"></p><button class="primary" type="submit">确认运行</button></form></dialog>
+  <dialog id="method-dialog"><div class="dialog-heading"><h2>检测题目与判定规则</h2><button class="icon-button close-dialog" aria-label="关闭" title="关闭"><svg><use href="/icons.svg#x"/></svg></button></div><div class="method-content">
+    <h3>黑袋糖果题</h3><p>三种口味，每种有圆形、五角星形两种形状，形状可凭手感分辨。预先决定取出数量，保证得到圆形苹果 + 五角星桃子，或者圆形桃子 + 五角星苹果。</p>
+    <table><thead><tr><th>形状</th><th>苹果</th><th>桃子</th><th>西瓜</th></tr></thead><tbody><tr><td>圆形</td><td>7</td><td>9</td><td>8</td></tr><tr><td>五角星</td><td>7</td><td>6</td><td>4</td></tr></tbody></table>
+    <p>标准答案为 <strong>21</strong>：选择 9 颗圆形与 12 颗五角星形即可保证异形苹果、桃子配对。20 颗不够。此结论依赖于允许凭手感选择形状，完全随机取糖则是另一种问题。</p><p>只要模型回复文本中出现数字 <strong>21</strong> 即判为通过；没有出现 21 则判为未通过。请求失败不计入通过率分母。</p>
+    <h3>鹈鹕动画 · 原始提示词</h3><blockquote>创建一个HTML，内容是SVG绘制一个鹈鹕骑自行车的2D动画，你不需要任何测试。</blockquote><p>仅检查返回文本包含 HTML 和 SVG，不自动评价画面、骑行动作或动画质量。作品在禁止外部资源的隔离窗口中展示。</p>
+    <h3>默认巡检与访客自测</h3><p>两项请求均使用 gpt-6-astra、low、/v1/responses，不提供联网工具。默认巡检使用后端配置，每十分钟一轮，公开保存最近 600 条记录。访客自测使用访客填写的 URL 和 Key，不影响后台配置、不计入巡检统计。</p><p>访客结果仅在内存保留一小时，通过当前浏览器的会话 Cookie 访问；刷新页面后本次会话列表会清空。密钥不写入日志、数据库或浏览器存储，仅发往指定的 HTTPS 公网上游。单题结果不用于证明模型身份。</p>
+  </div></dialog>
+</body>
+</html>

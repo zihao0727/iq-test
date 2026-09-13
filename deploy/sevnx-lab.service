@@ -1,0 +1,22 @@
+[Unit]
+Description=SEVNX Model Quality Lab
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=sevnx-lab
+WorkingDirectory=/var/lib/sevnx-lab
+ExecStart=/opt/sevnx-lab/sevnx-lab
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

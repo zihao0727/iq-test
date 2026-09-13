@@ -1,0 +1,5 @@
+listen_addr: "127.0.0.1:8090"
+api_base_url: "https://www.sevnx.lol"
+api_key: "replace-with-your-upstream-api-key"
+admin_token: "replace-with-a-long-random-admin-token"
+data_dir: "./data"

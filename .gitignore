@@ -1,0 +1,38 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.env
+*.pem
+*.key
+/config.yaml
+/config.local.*
+
+# Runtime data and generated output
+/data/
+/dist/
+/artifacts/
+/sevnx-lab
+*.exe
+*.test
+*.log
+*.err
+coverage.out
+coverage.html
+
+# Dependencies and test caches
+node_modules/
+playwright-report/
+test-results/
+
+# Editor and operating system files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+Desktop.ini
