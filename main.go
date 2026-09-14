@@ -30,7 +30,8 @@ import (
 var assets embed.FS
 
 const model = "gpt-6-astra"
-const interval = 10 * time.Minute
+const interval = 20 * time.Minute
+const candyMaxRetries = 3
 const pelicanPrompt = "创建一个HTML，内容是SVG绘制一个鹈鹕骑自行车的2D动画，你不需要任何测试。"
 const candyPrompt = `在一个黑色的袋子里放有三种口味的糖果，每种糖果有两种不同的形状（圆形和五角星形，不同的形状靠手感可以分辨）。现已知不同口味的糖和不同形状的数量统计如下表。参赛者需要在活动前决定摸出的糖果数目，那么，最少取出多少个糖果才能保证手中同时拥有不同形状的苹果味和桃子味的糖？（同时手中有圆形苹果味匹配五角星桃子味糖果，或者有圆形桃子味匹配五角星苹果味糖果都满足要求，不许联网，直接告诉我答案）
 
@@ -300,6 +301,20 @@ func (a *app) execute(ctx context.Context, r record) record {
 }
 
 func executeResponse(ctx context.Context, client *http.Client, endpoint, key, adminToken string, r record) record {
+	start := time.Now()
+	totalTokens := 0
+	for attempt := 0; ; attempt++ {
+		result := executeResponseOnce(ctx, client, endpoint, key, adminToken, r)
+		totalTokens += result.OutputTokens
+		result.OutputTokens = totalTokens
+		result.DurationMS = time.Since(start).Milliseconds()
+		if r.Kind != "candy" || result.Status == "pass" || attempt >= candyMaxRetries || ctx.Err() != nil {
+			return result
+		}
+	}
+}
+
+func executeResponseOnce(ctx context.Context, client *http.Client, endpoint, key, adminToken string, r record) record {
 	start := time.Now()
 	prompt, maxTokens := candyPrompt, 8192
 	if r.Kind == "pelican" {

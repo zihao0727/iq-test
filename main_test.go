@@ -147,7 +147,7 @@ func TestResponsesContractAndParallelRound(t *testing.T) {
 	if a.records[0].OutputTokens != 42 {
 		t.Error("usage missing")
 	}
-	if time.Until(a.next) < 9*time.Minute {
+	if remaining := time.Until(a.next); remaining < 19*time.Minute || remaining > 20*time.Minute {
 		t.Error("next run not scheduled")
 	}
 	b, err := os.ReadFile(filepath.Join(a.cfg.DataDir, "records.json"))
@@ -169,6 +169,64 @@ func waitRound(t *testing.T, a *app) {
 		time.Sleep(5 * time.Millisecond)
 	}
 	t.Fatal("round did not finish")
+}
+
+func TestCandyRetries(t *testing.T) {
+	for _, tc := range []struct {
+		name, kind, wantStatus string
+		passAt, wantCalls      int
+		httpError, cancel      bool
+	}{
+		{name: "first pass", kind: "candy", passAt: 1, wantCalls: 1, wantStatus: "pass"},
+		{name: "retry pass", kind: "candy", passAt: 2, wantCalls: 2, wantStatus: "pass"},
+		{name: "last retry pass", kind: "candy", passAt: 4, wantCalls: 4, wantStatus: "pass"},
+		{name: "wrong answer limit", kind: "candy", wantCalls: 4, wantStatus: "fail"},
+		{name: "request error limit", kind: "candy", httpError: true, wantCalls: 4, wantStatus: "error"},
+		{name: "pelican no retry", kind: "pelican", wantCalls: 1, wantStatus: "fail"},
+		{name: "canceled no retry", kind: "candy", cancel: true, wantCalls: 1, wantStatus: "error"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			calls := 0
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				calls++
+				if tc.cancel {
+					cancel()
+					return
+				}
+				if tc.httpError {
+					w.WriteHeader(http.StatusServiceUnavailable)
+					return
+				}
+				output := "31"
+				if calls == tc.passAt {
+					output = "21"
+				}
+				jsonReply(w, 200, map[string]any{
+					"status": "completed",
+					"output": []any{map[string]any{"type": "message", "content": []any{map[string]string{"type": "output_text", "text": output}}}},
+					"usage":  map[string]int{"output_tokens": 7},
+				})
+			}))
+			a := testApp(t, server.URL)
+			input := record{ID: "retry-test", Kind: tc.kind, Started: time.Now()}
+			result := a.execute(ctx, input)
+			server.Close()
+			if calls != tc.wantCalls || result.Status != tc.wantStatus {
+				t.Fatalf("calls=%d, result=%+v", calls, result)
+			}
+			if result.ID != input.ID || !result.Started.Equal(input.Started) {
+				t.Fatal("retry changed record identity")
+			}
+			if !tc.httpError && !tc.cancel && result.OutputTokens != calls*7 {
+				t.Fatalf("total tokens=%d, want %d", result.OutputTokens, calls*7)
+			}
+			if result.Status == "pass" && (result.Output != "21" || result.Error != "") {
+				t.Fatalf("stale retry output: %+v", result)
+			}
+		})
+	}
 }
 
 func TestErrorsAndNoRedirect(t *testing.T) {

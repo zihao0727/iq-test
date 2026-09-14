@@ -28,7 +28,7 @@ function render() {
   const failed=recent.filter(r=>r.status==='fail').length, errors=recent.filter(r=>r.status==='error').length;
   $('#abnormal').replaceChildren(document.createTextNode(String(failed+errors)),el('small','','项'));
   $('#error-note').textContent=`未通过 ${failed} · 请求失败 ${errors}`;
-  $('#schedule-note').textContent=state.configured?'每 10 分钟自动运行':'等待服务端配置 API_KEY';
+  $('#schedule-note').textContent=state.configured?'每 20 分钟自动运行':'等待服务端配置 API_KEY';
   $('#config-status').textContent=state.configured?'自动巡检已启用':'等待配置';
   $('#config-dot').className=`dot ${state.configured?'':'off'}`;
   $('#api-site').textContent=new URL(state.endpoint).host;
@@ -45,7 +45,7 @@ function render() {
   $('#latest-button').disabled=!last;
   $('#latest-button').onclick=()=>last&&showDetail(last.id);
   $('#timeline').replaceChildren();
-  const slot=600000, edge=Math.floor(now/slot)*slot;
+  const slot=(state.intervalSeconds || 1200)*1000, edge=Math.floor(now/slot)*slot;
   for(let i=0;i<144;i++){
     const start=edge-(143-i)*slot;
     const r=candy.find(r=>{const t=new Date(r.started).getTime();return t>=start&&t<start+slot;});
