@@ -78,7 +78,7 @@ func visitorEndpoint(raw string) (string, error) {
 func newVisitorClient() *http.Client {
 	transport := &http.Transport{
 		Proxy: nil, MaxIdleConns: 8, IdleConnTimeout: 30 * time.Second,
-		TLSHandshakeTimeout: 10 * time.Second, ResponseHeaderTimeout: 240 * time.Second,
+		TLSHandshakeTimeout: 10 * time.Second, ResponseHeaderTimeout: upstreamTimeout,
 	}
 	transport.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
 		host, port, err := net.SplitHostPort(address)
@@ -109,7 +109,7 @@ func newVisitorClient() *http.Client {
 		return nil, err
 	}
 	return &http.Client{
-		Transport: transport, Timeout: 240 * time.Second,
+		Transport: transport, Timeout: upstreamTimeout,
 		CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse },
 	}
 }

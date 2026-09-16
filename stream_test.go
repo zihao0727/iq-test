@@ -8,7 +8,46 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
+
+func TestUpstreamTimeout(t *testing.T) {
+	a := testApp(t, "https://example.com/v1/responses")
+	if a.client.Timeout != 10*time.Minute || a.visitorClient.Timeout != 10*time.Minute {
+		t.Fatal("upstream requests must have a ten-minute timeout")
+	}
+	transport := a.visitorClient.Transport.(*http.Transport)
+	if transport.ResponseHeaderTimeout != 10*time.Minute {
+		t.Fatal("visitor response headers must allow ten minutes")
+	}
+}
+
+func TestCandyStreamingExecution(t *testing.T) {
+	calls := 0
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Error(err)
+		}
+		if payload["stream"] != true || r.Header.Get("Accept") != "text/event-stream" {
+			t.Error("streaming not requested")
+		}
+		answer := "31"
+		if calls == 2 {
+			answer = "21"
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		io.WriteString(w, "data: {\"type\":\"response.output_text.delta\",\"delta\":\""+answer+"\"}\n\n")
+		w.(http.Flusher).Flush()
+		io.WriteString(w, "data: {\"type\":\"response.completed\",\"response\":{\"status\":\"completed\",\"usage\":{\"output_tokens\":7}}}\n\n")
+	}))
+	defer upstream.Close()
+	result := executeResponse(context.Background(), upstream.Client(), upstream.URL, "secret", "", record{Kind: "candy"})
+	if calls != 2 || result.Status != "pass" || result.Output != "21" || result.OutputTokens != 14 {
+		t.Fatalf("calls=%d result=%+v", calls, result)
+	}
+}
 
 func TestStreamResponses(t *testing.T) {
 	completed := `data: {"type":"response.completed","response":{"status":"completed","usage":{"output_tokens":73},"output":[{"type":"message","content":[{"type":"output_text","text":"<html><svg>完整</svg></html>"}]}]}}` + "\n\n"

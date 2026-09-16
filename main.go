@@ -31,6 +31,7 @@ var assets embed.FS
 
 const model = "gpt-6-astra"
 const interval = 20 * time.Minute
+const upstreamTimeout = 10 * time.Minute
 const candyMaxRetries = 3
 const pelicanPrompt = `生成一个可直接打开的 HTML 文件，使用 SVG 绘制鹈鹕骑自行车的 2D 动画，通过 CSS 或 JavaScript 实现车轮转动、双腿踩踏、身体轻微起伏、围巾随风摆动，以及背景缓慢移动，动作自然协调。
 整体采用清新治愈的复古绘本风格：低饱和配色、手绘感线条、简洁平涂、充足留白，可加入轻微纸张质感。
@@ -137,7 +138,7 @@ func newApp(c config) (*app, error) {
 		return nil, err
 	}
 	a := &app{cfg: c, client: &http.Client{
-		Timeout:       240 * time.Second,
+		Timeout:       upstreamTimeout,
 		CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse },
 	}, records: []record{}, visitors: make(map[string]*visitorJob), visitorClient: newVisitorClient()}
 	b, err := os.ReadFile(filepath.Join(c.DataDir, "records.json"))
@@ -327,7 +328,7 @@ func executeResponseOnce(ctx context.Context, client *http.Client, endpoint, key
 	}
 	payload := map[string]any{
 		"model": model, "input": prompt, "reasoning": map[string]string{"effort": "low"},
-		"max_output_tokens": maxTokens, "store": false, "stream": r.Kind == "pelican",
+		"max_output_tokens": maxTokens, "store": false, "stream": true,
 	}
 	b, _ := json.Marshal(payload)
 	req, err := http.NewRequestWithContext(ctx, "POST", endpoint, strings.NewReader(string(b)))
@@ -337,9 +338,7 @@ func executeResponseOnce(ctx context.Context, client *http.Client, endpoint, key
 	}
 	req.Header.Set("Authorization", "Bearer "+key)
 	req.Header.Set("Content-Type", "application/json")
-	if r.Kind == "pelican" {
-		req.Header.Set("Accept", "text/event-stream")
-	}
+	req.Header.Set("Accept", "text/event-stream")
 	resp, err := client.Do(req)
 	if err != nil {
 		r.Status, r.Error = "error", "上游连接失败或超时，请检查服务端网络和配置"

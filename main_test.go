@@ -104,7 +104,7 @@ func TestResponsesContractAndParallelRound(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
 			t.Error(err)
 		}
-		if p["model"] != model || p["stream"] != (p["input"] == pelicanPrompt) || p["store"] != false {
+		if p["model"] != model || p["stream"] != true || p["store"] != false {
 			t.Errorf("incorrect payload: %v", p)
 		}
 		if p["reasoning"].(map[string]any)["effort"] != "low" {

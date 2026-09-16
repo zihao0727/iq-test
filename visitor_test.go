@@ -87,7 +87,7 @@ func TestVisitorPrivateRound(t *testing.T) {
 		if p["model"] != model || p["reasoning"].(map[string]any)["effort"] != "low" {
 			t.Error("model contract changed")
 		}
-		if p["stream"] != (p["input"] == pelicanPrompt) {
+		if p["stream"] != true {
 			t.Error("visitor streaming contract changed")
 		}
 		output := "21"
